@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 
-import { EDIT_NUMBER, ALL_PERSONS } from './queries';
+import { EDIT_NUMBER } from './queries';
 
 const PhoneForm = ({ setError }) => {
   const [name, setName] = useState('');
@@ -12,7 +12,7 @@ const PhoneForm = ({ setError }) => {
     if (result.data && result.data.editNumber === null) {
       setError('person not found');
     }
-  }, [result.data, notify]);  // eslint-disable-line 
+  }, [result.data]);  // eslint-disable-line 
 
   const submit = (event) => {
     event.preventDefault();

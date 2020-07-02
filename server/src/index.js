@@ -32,7 +32,7 @@ const User = require('./models/user');
 mongoose.set('useFindAndModify', false);
 
 const MONGODB_URI =
-  'mongodb+srv://fullstack:sekred@cluster0-ostce.mongodb.net/graphql?retryWrites=true';
+  'mongodb+srv://fullstack:halfstack@cluster0-ostce.mongodb.net/gql-phonebook?retryWrites=true';
 
 mongoose.set('useCreateIndex', true);
 
@@ -90,7 +90,7 @@ const resolvers = {
     personCount: () => persons.length,
     allPersons: (root, args) => {
       if (!args.phone) {
-        return persons;
+        return Person.find({})
       }
       // const byPhone = (person) => (args.phone === 'TRUE' ? person.phone : !person.phone);
       // return persons.filter(byPhone);
