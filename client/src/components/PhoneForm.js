@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 
-import { EDIT_NUMBER } from './queries';
+import { EDIT_NUMBER } from '../graphql/queries';
 
 const PhoneForm = ({ setError }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [changeNumber, result] = useMutation(EDIT_NUMBER);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (result.data && result.data.editNumber === null) {
       setError('person not found');
     }
-  }, [result.data]);  // eslint-disable-line 
+  }, [result.data]); // eslint-disable-line
 
   const submit = (event) => {
     event.preventDefault();

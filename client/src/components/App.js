@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import './App.css';
 import Persons from './Persons.js';
 import PersonForm from './PersonForm.js';
-import { useQuery, useMutation, useSubscription, useApolloClient } from '@apollo/client';
-import { ALL_PERSONS, PERSON_ADDED } from './queries';
+import { useQuery, useSubscription, useApolloClient } from '@apollo/client';
+import { ALL_PERSONS, PERSON_ADDED } from '../graphql/queries';
 import PhoneForm from './PhoneForm';
 import LoginForm from './LoginForm';
 
