@@ -7,32 +7,9 @@ const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY';
 const Person = require('./models/person');
 const User = require('./models/user');
 
-// let persons = [
-//   {
-//     name: 'Arto Hellas',
-//     phone: '040-123543',
-//     city: 'Espoo',
-//     street: 'Tapiolankatu 5 A',
-//     id: '3d594650-3436-11e9-bc57-8b80ba54c431',
-//   },
-//   {
-//     name: 'Matti Luukkainen',
-//     phone: '040-432342',
-//     street: 'Malminkaari 10 A',
-//     city: 'Helsinki',
-//     id: '3d599470-3436-11e9-bc57-8b80ba54c431',
-//   },
-//   {
-//     name: 'Venla Ruuska',
-//     street: 'Nallemäentie 22 C',
-//     city: 'Helsinki',
-//     id: '3d599471-3436-11e9-bc57-8b80ba54c431',
-//   },
-// ];
 mongoose.set('useFindAndModify', false);
 
-const MONGODB_URI =
-  'mongodb+srv://fullstack:halfstack@cluster0-ostce.mongodb.net/gql-phonebook?retryWrites=true';
+const MONGODB_URI = 'mongodb+srv://fullstack:halfstack@cluster0-ostce.mongodb.net/gql-phonebook?retryWrites=true';
 
 mongoose.set('useCreateIndex', true);
 
@@ -90,17 +67,15 @@ const resolvers = {
     personCount: () => persons.length,
     allPersons: (root, args) => {
       if (!args.phone) {
-        return Person.find({})
+        return Person.find({});
       }
-      // const byPhone = (person) => (args.phone === 'TRUE' ? person.phone : !person.phone);
-      // return persons.filter(byPhone);
 
       return Person.find({ phone: { $exists: args.phone === 'YES' } });
     },
-    findPerson: (root, args) => {
-      console.log(root);
+    findPerson: async (root, args) => {
+      const person = await Person.findOne({ name: args.name });
 
-      return persons.find((p) => p.name === args.name);
+      return person;
     },
     me: (root, args, context) => {
       return context.currentUser;
@@ -113,13 +88,6 @@ const resolvers = {
   },
   Mutation: {
     addPerson: async (root, args, context) => {
-      // if (persons.find((p) => p.name === args.name)) {
-      //   throw new UserInputError('Name must be unique', { invalidArgs: args.name });
-      // }
-      // const person = { ...args, id: uuid() };
-      // persons = persons.concat(person);
-      // return person;
-
       const person = new Person({ ...args });
       const currentUser = context.currentUser;
 
@@ -139,15 +107,6 @@ const resolvers = {
       return person;
     },
     editNumber: async (root, args) => {
-      // const person = persons.find((p) => p.name === args.name);
-      // if (!person) {
-      //   return null;
-      // }
-
-      // const updatedPerson = { ...person, phone: args.phone };
-      // persons = persons.map((p) => (p.name === args.name ? updatedPerson : p));
-      // return updatedPerson;
-
       const person = await Person.findOne({ name: args.name });
       person.phone = args.phone;
 
@@ -185,8 +144,7 @@ const resolvers = {
     },
     addAsFriend: async (root, args, context) => {
       const currentUser = context.currentUser;
-      const nonFriendAlready = (person) =>
-        !currentUser.friends.map((f) => f._id).includes(person._id);
+      const nonFriendAlready = (person) => !currentUser.friends.map((f) => f._id).includes(person._id);
 
       if (!currentUser) {
         throw new AuthenticationError('not authenticated');
