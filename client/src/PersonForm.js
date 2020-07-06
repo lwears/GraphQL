@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { ALL_PERSONS, CREATE_PERSON } from './queries';
 
-const PersonForm = ({ setError }) => {
+const PersonForm = ({ setError, updateCacheWith }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [street, setStreet] = useState('');
@@ -13,12 +13,15 @@ const PersonForm = ({ setError }) => {
     onError: (error) => {
       setError(error.graphQLErrors[0].message);
     },
+    update: (store, response) => {
+      updateCacheWith(response.data.addPerson);
+    },
   });
 
   const submit = (event) => {
     event.preventDefault();
 
-    createPerson({ variables: { name, phone, street, city } });
+    createPerson({ variables: { name, phone: phone.length > 0 ? phone : null, street, city } });
     setName('');
     setPhone('');
     setStreet('');

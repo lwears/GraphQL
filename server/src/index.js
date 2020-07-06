@@ -2,6 +2,8 @@ const { ApolloServer, gql, UserInputError, AuthenticationError } = require('apol
 const { v1: uuid } = require('uuid');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { PubSub } = require('apollo-server');
+const pubsub = new PubSub();
 
 const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY';
 const Person = require('./models/person');
@@ -60,6 +62,7 @@ const typeDefs = gql`
     name: String!
     phone: String
     address: Address!
+    friendOf: [User!]!
     id: ID!
   }
   type Address {
@@ -83,6 +86,9 @@ const typeDefs = gql`
     login(username: String!, password: String!): Token
     addAsFriend(name: String!): User
   }
+  type Subscription {
+    personAdded: Person!
+  }
 `;
 
 const resolvers = {
@@ -90,17 +96,13 @@ const resolvers = {
     personCount: () => persons.length,
     allPersons: (root, args) => {
       if (!args.phone) {
-        return Person.find({})
+        return Person.find({});
       }
-      // const byPhone = (person) => (args.phone === 'TRUE' ? person.phone : !person.phone);
-      // return persons.filter(byPhone);
-
       return Person.find({ phone: { $exists: args.phone === 'YES' } });
     },
-    findPerson: (root, args) => {
-      console.log(root);
-
-      return persons.find((p) => p.name === args.name);
+    findPerson: async (root, args) => {
+      const person = await Person.findOne({ name: args.name });
+      return person;
     },
     me: (root, args, context) => {
       return context.currentUser;
@@ -109,6 +111,15 @@ const resolvers = {
   Person: {
     address: (root) => {
       return { street: root.street, city: root.city };
+    },
+    friendOf: async (root) => {
+      const friends = await User.find({
+        friends: {
+          $in: [root._id],
+        },
+      });
+
+      return friends;
     },
   },
   Mutation: {
@@ -136,6 +147,7 @@ const resolvers = {
           invalidArgs: args,
         });
       }
+      pubsub.publish('PERSON_ADDED', { personAdded: person });
       return person;
     },
     editNumber: async (root, args) => {
@@ -172,7 +184,7 @@ const resolvers = {
     login: async (root, args) => {
       const user = await User.findOne({ username: args.username });
 
-      if (!user || args.password !== 'secred') {
+      if (!user || args.password !== 'secret') {
         throw new UserInputError('wrong credentials');
       }
 
@@ -202,6 +214,11 @@ const resolvers = {
       return currentUser;
     },
   },
+  Subscription: {
+    personAdded: {
+      subscribe: () => pubsub.asyncIterator(['PERSON_ADDED']),
+    },
+  },
 };
 
 const server = new ApolloServer({
@@ -217,6 +234,7 @@ const server = new ApolloServer({
   },
 });
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`);
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`);
 });

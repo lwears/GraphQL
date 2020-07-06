@@ -4,13 +4,16 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.0.0-rc.10",
+    "@apollo/link-ws": "^2.0.0-beta.3",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "apollo-link-context": "^1.0.20",
     "graphql": "^15.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "subscriptions-transport-ws": "^0.9.16"
   },
   "scripts": {
     "start": "react-scripts start",

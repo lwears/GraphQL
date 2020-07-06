@@ -3,8 +3,9 @@ import { useLazyQuery } from '@apollo/client';
 import { FIND_PERSON } from './queries';
 
 const Persons = ({ persons }) => {
-  const [getPerson, result] = useLazyQuery(FIND_PERSON);
+
   const [person, setPerson] = React.useState(null);
+  const [getPerson, result] = useLazyQuery(FIND_PERSON);
 
   const showPerson = (name) => {
     getPerson({ variables: { nameToSearch: name } });
@@ -14,17 +15,18 @@ const Persons = ({ persons }) => {
     if (result.data) {
       setPerson(result.data.findPerson);
     }
-  }, [result]);
+  }, [result.data]);
 
   if (person) {
     return (
       <div>
         {' '}
-        <h2>{person.name}</h2>{' '}
+        <h2>{person.name}</h2>
         <div>
           {person.address.street} {person.address.city}
         </div>{' '}
-        <div>{person.phone}</div> <button onClick={() => setPerson(null)}>close</button>{' '}
+        <div>{person.phone}</div>
+        <button onClick={() => setPerson(null)}>close</button>{' '}
       </div>
     );
   }
@@ -34,7 +36,7 @@ const Persons = ({ persons }) => {
       <h2>Persons</h2>
       {persons.map((p) => (
         <div key={p.name}>
-          {p.name} {p.phone}
+          {p.name} {p.phone} {p.username}{' '}
           <button onClick={() => showPerson(p.name)}> show address </button>{' '}
         </div>
       ))}
